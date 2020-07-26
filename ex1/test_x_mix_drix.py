@@ -1,6 +1,6 @@
 import unittest
 
-from exercise_1_x_mix_drix import XOBoard, PlayerToken, XOGame
+from ex1.exercise_1_x_mix_drix import XOBoard, PlayerToken, XOGame
 
 X = PlayerToken.X
 O = PlayerToken.O
