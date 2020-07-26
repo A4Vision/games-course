@@ -45,7 +45,7 @@ class TestXOBoard(unittest.TestCase):
             [O, O, O],
             [XOBoard.EMPTY, XOBoard.EMPTY, XOBoard.EMPTY],
         ])
-        assert 'X X X' in str(board)
+        assert 'X X X' in str(board)  # Calls board.__str__()
         assert 'O O O' in str(board)
 
     def test_illegal_moves_are_ignored(self):
