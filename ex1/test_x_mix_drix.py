@@ -1,6 +1,6 @@
 import unittest
 
-from ex1.exercise_1_x_mix_drix import XOBoard, PlayerToken, XOGame
+from exercise_1_x_mix_drix import XOBoard, PlayerToken, XOGame
 
 X = PlayerToken.X
 O = PlayerToken.O
@@ -8,11 +8,7 @@ O = PlayerToken.O
 
 class TestXOBoard(unittest.TestCase):
     def test_check_win_row(self):
-        board = XOBoard([
-            [XOBoard.EMPTY] * 3,
-            [X, X, X],
-            [XOBoard.EMPTY] * 3,
-        ])
+        board = XOBoard([[XOBoard.EMPTY] * 3, [X, X, X], [XOBoard.EMPTY] * 3, ])
         assert board.is_winning(X)
 
     def test_check_win_column(self):
@@ -23,30 +19,39 @@ class TestXOBoard(unittest.TestCase):
         ])
         assert board.is_winning(X)
 
-    def test_check_win_diagonal(self):
-        board = XOBoard([
-            [XOBoard.EMPTY, XOBoard.EMPTY, X],
-            [XOBoard.EMPTY, X, XOBoard.EMPTY],
-            [X, XOBoard.EMPTY, XOBoard.EMPTY],
-        ])
+    def test_check_win_diagonal1(self):
+        board = XOBoard([[X, PlayerToken.EMPTY, O], [PlayerToken.EMPTY, X, PlayerToken.EMPTY], [O, PlayerToken.EMPTY, X]])
+        assert board.is_winning(X)
+        board = XOBoard([[X, PlayerToken.EMPTY, O], [PlayerToken.EMPTY, X, PlayerToken.EMPTY], [O, PlayerToken.EMPTY, O]])
+        assert not board.is_winning(X)
+
+    def test_check_win_diagonal2(self):
+        board = XOBoard(
+            [[XOBoard.EMPTY, XOBoard.EMPTY, X], [XOBoard.EMPTY, X, XOBoard.EMPTY], [X, XOBoard.EMPTY, XOBoard.EMPTY], ])
         assert board.is_winning(X)
 
     def test_check_not_win(self):
-        board = XOBoard([
-            [X, X, XOBoard.EMPTY],
-            [XOBoard.EMPTY, X, X],
-            [X, X, XOBoard.EMPTY],
-        ])
+        board = XOBoard([[X, X, XOBoard.EMPTY], [XOBoard.EMPTY, X, X], [X, XOBoard.EMPTY, XOBoard.EMPTY], ])
         assert not board.is_winning(X)
 
-    def test_print(self):
+    def test_print_board1(self):
         board = XOBoard([
             [X, X, X],
             [O, O, O],
             [XOBoard.EMPTY, XOBoard.EMPTY, XOBoard.EMPTY],
         ])
-        assert 'X X X' in str(board)  # Calls board.__str__()
-        assert 'O O O' in str(board)
+        assert 'X|X|X' in str(board)  # Calls board.__str__()
+        assert 'O|O|O' in str(board)
+
+    def test_print_board2(self):
+        board = XOBoard([[X, PlayerToken.EMPTY, O],
+                         [PlayerToken.EMPTY, O, X],
+                         [O, O, X]
+                         ])
+        assert str(board).count("X") == 3
+        assert str(board).count("O") == 4
+        assert str(board)[1] == str(board)[3] == str(board)[7] == str(board)[9] == str(board)[13] == str(board)[15]
+        assert str(board)[5] == str(board)[5] == str(board)[11]
 
     def test_illegal_moves_are_ignored(self):
         board = XOBoard([
@@ -65,6 +70,12 @@ class TestXOBoard(unittest.TestCase):
         assert not board.is_move_legal(-1, 0)
         assert not board.is_move_legal(3, 0)
         assert not board.is_move_legal(0, 3)
+
+    def test_changing_value_only_one_value_change(self):
+        board = XOBoard.empty_board()
+
+        board.play_move(0, 0, X)
+        assert board.is_move_legal(1, 0)
 
 
 class TestGame(unittest.TestCase):
