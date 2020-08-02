@@ -1,4 +1,5 @@
 import copy
+import random
 from enum import Enum
 from typing import List, Generator
 
@@ -73,14 +74,17 @@ class XOGame:
         :param user_input_generator: Generates the user input - i.e. row, column pairs for where to put the tokens.
         """
         self._current_player = PlayerToken.X
+        self._computer_player = PlayerToken.O
         self._user_input_generator = user_input_generator
         self._board = XOBoard.empty_board()
 
     def change_player(self):
         if self._current_player == PlayerToken.X:
             self._current_player = PlayerToken.O
+            self._computer_player = PlayerToken.X
         else:
             self._current_player = PlayerToken.X
+            self._computer_player = PlayerToken.O
 
     def current_player(self) -> PlayerToken:
         return self._current_player
@@ -95,15 +99,17 @@ class XOGame:
         iterator = iter(self._user_input_generator)
         for i in range(n_moves):
             # Told for the user who is turn, collect a row and column from the user and try to put a play token there.
-            print(f"Now it's the turn of the player is play with {self._current_player.value}")
+            print(f"Your turn")
             row, column = next(iterator)
             self._board.play_move(row, column, self._current_player)
             print(self._board)
 
-            # Check if the current player in won.
-            if self._board.is_winning(self._current_player) or " " not in str(self._board):
-                break
-            self.change_player()
+            # The computer random choice
+            print("The computer turn...")
+            row, column = (random.randint(0, 2), random.randint(0, 2))
+            self._board.play_move(row, column, self._computer_player)
+            print(self._board)
+
 
 
 def main():
