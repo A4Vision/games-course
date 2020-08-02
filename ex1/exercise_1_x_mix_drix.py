@@ -9,6 +9,10 @@ class PlayerToken(Enum):
     EMPTY = ' '
 
 
+X = PlayerToken.X
+O = PlayerToken.O
+
+
 class XOBoard:
     EMPTY = PlayerToken.EMPTY
 
@@ -16,32 +20,38 @@ class XOBoard:
         self._board = copy.deepcopy(board)
 
     def __str__(self) -> str:
-        """
-        Prints the board in a human-readable way.
-        """
-        pass
+        row1 = "|".join([i.value for i in self._board[0]])
+        row2 = "|".join([i.value for i in self._board[1]])
+        row3 = "|".join([i.value for i in self._board[2]])
+        return "\n".join([row1, row2, row3])
 
     @staticmethod
     def empty_board():
         return XOBoard([[XOBoard.EMPTY] * 3 for i in range(3)])
 
     def play_move(self, row: int, column: int, player_token: PlayerToken):
-        """
-        Does nothing if the move is illegal
-        """
-        pass
+        if self.is_move_legal(row, column):
+            self._board[row][column] = player_token
 
     def is_winning(self, player_token: PlayerToken):
-        """
-        Returns true if the given player won the game.
-        """
-        pass
+        win_lst = [player_token] * 3
+        for row in self._board:
+            if row == win_lst:
+                return True
+
+        for i in range(3):
+            column = [row[i] for row in self._board]
+            if column == win_lst:
+                return True
+
+        diagonal1 = [self._board[i][i] for i in range(3)]
+        diagonal2 = [self._board[2 - i][i] for i in range(3)]
+        if diagonal1 == win_lst or diagonal2 == win_lst:
+            return True
+        return False
 
     def is_move_legal(self, row: int, column: int):
-        """
-        Returns true if the location of the given coordinates
-        """
-        pass
+        return 0 <= row < 3 and 0 <= column < 3 and self._board[row][column] == PlayerToken.EMPTY
 
 
 def iterate_user_input():
@@ -49,7 +59,7 @@ def iterate_user_input():
     Gets row and column from the user.
     """
     while True:
-        text = input("Please select a row and a column to play (comma separated. for example, 0, 2.")
+        text = input("Please select a row and a column to play (comma separated. for example, 0, 2). ")
         try:
             row, column = [int(coordinate) for coordinate in text.split(",")]
             yield row, column
@@ -67,37 +77,40 @@ class XOGame:
         self._board = XOBoard.empty_board()
 
     def change_player(self):
-        """
-        Changes the current player.
-        """
-        pass
+        if self._current_player == PlayerToken.X:
+            self._current_player = PlayerToken.O
+        else:
+            self._current_player = PlayerToken.X
 
     def current_player(self) -> PlayerToken:
-        """
-        Returns the token of the current player.
-        """
-        pass
+        return self._current_player
 
     def get_winner(self) -> PlayerToken:
-        """
-        Returns the token of the winning player if any of the player won.
-        Otherwise, returns None.
-        """
-        pass
+        if self._board.is_winning(X):
+            return X
+        elif self._board.is_winning(O):
+            return O
 
     def play_game(self, n_moves: int):
-        """
-        Plays n_moves turns of the game.
-        """
-        # Hint: take input from the user using next(self._user_input_generator)
-        pass
+        iterator = iter(self._user_input_generator)
+        for i in range(n_moves):
+            # Told for the user who is turn, collect a row and column from the user and try to put a play token there.
+            print(f"Now it's the turn of the player is play with {self._current_player.value}")
+            row, column = next(iterator)
+            self._board.play_move(row, column, self._current_player)
+            print(self._board)
+
+            # Check if the current player in won.
+            if self._board.is_winning(self._current_player) or " " not in str(self._board):
+                break
+            self.change_player()
 
 
 def main():
     game = XOGame(iterate_user_input())
     game.play_game(100)
     if game.get_winner() is not None:
-        print("Winner is:", game.get_winner())
+        print("Winner is:", game.get_winner().value)
     else:
         print("Draw")
 
