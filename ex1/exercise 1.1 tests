@@ -1,0 +1,145 @@
+import unittest
+from exercise_1_x_mix_drix import XOBoard, PlayerToken, XOGame
+
+X = PlayerToken.X
+O = PlayerToken.O
+emp = PlayerToken.EMPTY
+
+
+class TestXOBoard(unittest.TestCase):
+    def test_check_win_row(self):
+        board = XOBoard([[XOBoard.EMPTY] * 3, [X, X, X], [XOBoard.EMPTY] * 3, ])
+        assert board.is_winning(X)
+
+    def test_check_win_column(self):
+        board = XOBoard([
+            [emp, emp, X],
+            [emp, emp, X],
+            [emp, emp, X],
+        ])
+        assert board.is_winning(emp)
+
+    def test_check_win_diagonal1(self):
+        board = XOBoard(
+            [[X, emp, O], [emp, X, emp], [O, emp, X]])
+        assert board.is_winning(X)
+        board = XOBoard(
+            [[X, emp, O], [emp, X, emp], [O, emp, O]])
+        assert not board.is_winning(X)
+
+    def test_check_win_diagonal2(self):
+        board = XOBoard(
+            [[emp, X, O], [emp, X, emp], [emp, X, emp]])
+        assert board.is_winning(X)
+
+    def test_check_not_win(self):
+        board = XOBoard([[X, X, emp], [emp, X, X], [X, emp, emp], ])
+        assert not board.is_winning(X)
+
+    def test_print_board1(self):
+        board = XOBoard([
+            [X, X, X],
+            [O, O, O],
+            [emp, emp, emp],
+        ])
+        assert 'X|X|X' in str(board)  # Calls board.__str__()
+        assert 'O|O|O' in str(board)
+
+    def test_print_board2(self):
+        board = XOBoard([[X, emp, O],
+                         [emp, O, X],
+                         [O, O, X]
+                         ])
+        assert str(board).count("X") == 3
+        assert str(board).count("O") == 4
+
+    def test_illegal_moves_are_ignored(self):
+        board = XOBoard([
+            [X, X, O],
+            [emp, emp, emp],
+            [emp, emp, emp],
+        ])
+        assert not board.is_move_legal(0, 2)
+        board.play_move(0, 2, X)
+        assert not board.is_winning(X)
+
+    def test_out_of_bound_is_illegal_move(self):
+        board = XOBoard.empty_board()
+        assert board.is_move_legal(0, 0)
+        assert board.is_move_legal(2, 2)
+        assert not board.is_move_legal(-1, 0)
+        assert not board.is_move_legal(3, 0)
+        assert not board.is_move_legal(0, 3)
+
+    def test_changing_value_only_one_value_change(self):
+        board = XOBoard.empty_board()
+
+        board.play_move(0, 0, X)
+        assert board.is_move_legal(1, 0)
+
+
+class TestGame(unittest.TestCase):
+    def test_change_player(self):
+        game = XOGame([(0, 0), (1, 0), (0, 1), (1, 1), (0, 2)])
+        assert game.current_player() == X
+        game.change_player()
+        assert game.current_player() == O
+        game.change_player()
+        assert game.current_player() == X
+
+    def test_play_game_X_wins(self):
+        game = XOGame([(0, 0), (1, 0), (0, 1), (1, 1), (0, 2)])
+        game.play_game(5)
+        assert game.get_winner() == X
+
+    def test_play_game_O_wins(self):
+        game = XOGame([(0, 0), (1, 0), (0, 1), (1, 1), (2, 2), (1, 2)])
+        game.play_game(6)
+        assert game.get_winner() == O
+
+    def test_play_game_no_one_win(self):
+        game = XOGame([(1, 1), (0, 0), (2, 2), (2, 1), (0, 2)])
+        game.play_game(5)
+        assert game.get_winner() is None
+        game = XOGame([(1, 1), (1, 0), (2, 2), (2, 1), (0, 0)])
+        game.play_game(5)
+        assert game.get_winner() == X
+
+    def test_put_in_place_is_not_move_legal(self):
+        game = XOGame([(0, 0), (0, 0), (2, 2), (2, 1)])
+        now_player = game.current_player()
+        game.play_game(3)
+        assert game.current_player() != now_player
+
+    def test_check_is_vs_equality(self):
+        lst1 = []
+        lst2 = []
+        lst3 = lst1
+        assert lst1 is not lst2
+        assert lst1 == lst2
+        assert lst1 is lst3
+
+    def test_break_win(self):
+        gen = iter([(1, 1), (0, 1), (0, 0), (2, 0), (2, 2), (1, 0)])
+        game = XOGame(gen)
+        game.play_game(6)
+        assert next(gen) == (1, 0)
+
+    def test_place_not_legal_then_still_play_n_move_turns(self):
+        game = XOGame([(0, 0), (0, 0), (0, 0), (2, 0), (1, 1), (2, 1), (2, 2)])
+        start_player = game.current_player()
+        game.play_game(5)
+        assert game.get_winner() == start_player
+
+    def test_vs_comp_bool_value(self):
+        game = XOGame([(1, 1)], True)
+        start_player = game.current_player()
+        game.play_game(2)
+        end_player = game.current_player()
+        assert start_player == end_player
+
+        game = XOGame([(1, 1)], False)
+        start_player = game.current_player()
+        game.play_game(1)
+        end_player = game.current_player()
+        assert start_player != end_player
