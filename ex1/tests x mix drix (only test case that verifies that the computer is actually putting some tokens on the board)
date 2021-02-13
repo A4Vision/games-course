@@ -1,0 +1,15 @@
+    def test_the_computer_put_tokens(self):
+        gen = iter([(0, 0)])
+        game = XOGame(gen, True)
+
+        game.play_game(2)
+
+        option_of_o_place = [(0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+
+        for i in option_of_o_place:
+            iterator = iter([i])
+            try:
+                game.asc_move_input(iterator)
+            except StopIteration:
+                return
+        raise AssertionError
